@@ -1,0 +1,88 @@
+/*
+    Programa para enviar un SMS usando un módulo GPRS
+    con placa Arduino por AjpdSoft
+ */
+
+//Pin para activar el módulo GPRS
+const int pinActivarGPRS = 2; 
+
+//Especificamos que el sensor1 ira unido al pin 3
+const int sensorpin1 = 3; 
+//Especificamos que el sensor2 ira unido al pin 4
+const int sensorpin2 = 4; 
+
+//Especificamos el estado inicial del sensor1 (apagado)
+int estadosensor1 = 0; 
+//Epecificamos el estado inicial del sensor2 (apagado)
+int estadosensor2 = 0; 
+
+//Cantidad de SMS a enviar
+int cantidadSMSEnviar = 1; 
+//Contador de las vueltas del bucle
+int contador = 0; 
+
+//Procedimiento para activar el módulo GPRS
+void activarModuloGPRS()
+{
+  digitalWrite(pinActivarGPRS, HIGH);
+  delay(2000);
+  digitalWrite(pinActivarGPRS, LOW);
+}
+
+void setup()
+{
+  pinMode(sensorpin1, INPUT); //El pin del sensor1 debe ser una entrada
+  pinMode(sensorpin2, INPUT); //El pin del sensor2 debe ser una entrada
+  pinMode(pinActivarGPRS, OUTPUT); //El pin del GPRS debe ser una salida
+
+  Serial.begin(19200); //Velocidad de conexión con módulo GPRS
+    
+  activarModuloGPRS(); //Activamos el módulo GPRS
+  
+  delay(20000); //Esperamos 20 segundos a que se active el módulo GPRS
+  
+  Serial.println("AT+CMGF=1"); //Activamos el modo SMS
+}
+
+void loop()
+{
+  while (contador < cantidadSMSEnviar)
+  {
+    delay(1500);
+    Serial.print("AT+CMGS="); //Comando AT para enviar SMS
+    Serial.print(34, BYTE); //Enviar caracter "
+    Serial.print("670782442"); //Número de móvil receptor del SMS
+    Serial.println(34, BYTE);  //Enviar caracter "
+    delay(1500); 
+    
+    //Si el estado del sensor 1 es bajo y el estado del sensor 2 es bajo, la puerta esta cerrada
+    //y también está echada la llave, por lo tanto la puerta esta cerrada con llave
+    if (estadosensor1 == LOW && estadosensor2 == LOW) {
+      Serial.print("Puerta cerrada con llave"); //Texto del SMS
+    }
+    
+    //Si el estado del sensor 1 es bajo y el estado del sensor 2 es alto, la puerta esta cerrada
+    //pero no está echada la llave, por lo tanto la puerta esta cerrada sin llave
+    if (estadosensor1 == LOW && estadosensor2 == HIGH) {
+      Serial.print("Puerta cerrada sin llave"); //Texto del SMS
+    }
+    
+    //Si el estado del sensor 1 es alto y el estado del sensor 2 es alto, ni la puerta esta cerrada
+    //ni esta echada la llave, por lo tanto la puerta esta abierta
+    if (estadosensor1 == HIGH && estadosensor2 == HIGH) {
+	    Serial.print("Puerta abierta"); //Texto del SMS
+    }
+    
+    delay(500);
+    Serial.print(0x1A,BYTE); //Final del SMS, comando 1A (hex)
+       
+    delay(10000);        
+
+    contador++;    
+  }
+
+  if (contador == cantidadSMSEnviar){
+    Serial.println("AT*PSCPOF"); //Desactivamos el módulo GPRS
+    contador++;
+  }
+}
