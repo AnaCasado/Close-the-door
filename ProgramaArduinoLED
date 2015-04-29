@@ -1,0 +1,48 @@
+const int sensorpin1 = 2; //Especificamos que el sensor1 ira unido al pin 2
+const int sensorpin2 = 3; //Especificamos que el sensor2 ira unido al pin 3
+const int ledpinVerde = 13; //El pin 13 ira destinado para el LED VERDE
+const int ledpinRojo = 12; //El pin 12 ira destinado para el LED ROJO
+const int ledpinNaranja = 11; //El pin 11 ira destinado para el LED NARANJA
+int estadosensor1 = 0; //Especificamos el estado inicial del sensor1 (apagado)
+int estadosensor2 = 0; //Epecificamos el estado inicial del sensor2 (apagado)
+
+void setup(){
+pinMode(ledpinVerde, OUTPUT); //Marcamos el pin del LED VERDE como salida
+pinMode(ledpinRojo, OUTPUT); //Marcamos el pin del LED ROJO como salida
+pinMode(ledpinNaranja, OUTPUT); //Marcamos el pin del LED NARANJA como salida
+pinMode(sensorpin1, INPUT); //El pin del sensor1 debe ser una entrada
+pinMode(sensorpin2, INPUT); //El pin del sensor2 debe ser una entrada
+}
+
+void loop(){
+
+estadosensor1 = digitalRead(sensorpin1); //Leer el estado del sensor1
+estadosensor2 = digitalRead(sensorpin2); //Leer el estado del sensor2
+
+//Si el estado del sensor 1 es bajo y el estado del sensor 2 es bajo, la puerta esta encajada 
+//y también está echada la llave, por lo tanto la puerta esta cerrada con el cerrojo echado
+if (estadosensor1 == LOW && estadosensor2 == LOW) {
+	//LUZ VERDE
+  digitalWrite(ledpinRojo, LOW);
+  digitalWrite(ledpinNaranja, LOW);
+	digitalWrite(ledpinVerde, HIGH);
+}
+
+//Si el estado del sensor 1 es bajo y el estado del sensor 2 es alto, la puerta esta encajada 
+//pero no está echada la llave, por lo tanto la puerta esta cerrada sin llave
+if (estadosensor1 == LOW && estadosensor2 == HIGH) {
+	//LUZ NARANJA
+  digitalWrite(ledpinVerde, LOW);
+  digitalWrite(ledpinRojo, LOW);
+	digitalWrite(ledpinNaranja, HIGH);
+}
+
+//Si el estado del sensor 1 es alto y el estado del sensor 2 es alto, ni la puerta esta encajada 
+//ni esta echada la llave, por lo tanto la puerta esta abierta
+if (estadosensor1 == HIGH && estadosensor2 == HIGH) {
+	//LUZ ROJA
+  digitalWrite(ledpinVerde, LOW);
+  digitalWrite(ledpinNaranja, LOW);
+	digitalWrite(ledpinRojo, HIGH);      
+}
+}
